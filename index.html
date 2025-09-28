@@ -2,1598 +2,496 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Match Streaming - Premium Sports</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Star Cricket 🏏 Live Streaming</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.7.0/dist/controls.css">
+    <script disable-devtool-auto src="https://cdn.jsdelivr.net/npm/disable-devtool@latest"></script>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --bg: #0f0f23;
-            --bg-secondary: #1a1a3e;
-            --accent: #6366f1;
-            --accent-secondary: #818cf8;
-            --surface: rgba(99, 102, 241, 0.05);
-            --surface-hover: rgba(99, 102, 241, 0.08);
-            --border: rgba(99, 102, 241, 0.2);
-            --glow: rgba(99, 102, 241, 0.3);
-            --text-dim: rgba(255, 255, 255, 0.6);
-        }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg);
-            color: #fff;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            padding-top: 30px;
-        }
-
-        /* Animated background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, var(--bg-secondary) 0%, transparent 50%);
-            opacity: 0.05;
-            animation: floatingGradient 20s ease infinite;
-            z-index: -1;
-        }
-
-        @keyframes floatingGradient {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(-20px, -20px) rotate(120deg); }
-            66% { transform: translate(20px, -10px) rotate(240deg); }
-        }
-
-        /* Particle container */
-        #particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: var(--accent);
-            border-radius: 50%;
-            opacity: 0;
-            animation: particleAnimation 3s ease-out forwards;
-        }
-
-        @keyframes particleAnimation {
-            0% {
-                opacity: 0;
-                transform: scale(0) translate(0, 0);
-            }
-            20% {
-                opacity: 0.8;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.5) translate(var(--tx), var(--ty));
-            }
-        }
-
-        /* Enhanced Popup Modal */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
+            padding: 20px;
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            animation: fadeIn 0.5s ease;
+            gap: 30px;
         }
-
-        @keyframes fadeIn {
-            from { 
-                opacity: 0;
-                backdrop-filter: blur(0px);
-            }
-            to { 
-                opacity: 1;
-                backdrop-filter: blur(10px);
-            }
-        }
-
-        .popup-content {
-            background: linear-gradient(135deg, 
-                rgba(25, 25, 45, 0.95) 0%, 
-                rgba(15, 15, 35, 0.98) 50%,
-                rgba(30, 20, 50, 0.95) 100%
-            );
-            padding: 60px 80px;
-            border-radius: 30px;
-            text-align: center;
+        
+        #container {
             position: relative;
-            box-shadow: 
-                0 25px 80px rgba(0, 0, 0, 0.5),
-                0 0 100px rgba(99, 102, 241, 0.2),
-                inset 0 0 100px rgba(99, 102, 241, 0.05);
-            animation: slideIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
-
-        /* Animated border for popup */
-        .popup-content::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, 
-                var(--accent), 
-                var(--accent-secondary), 
-                var(--accent), 
-                var(--accent-secondary)
-            );
-            border-radius: 30px;
-            opacity: 0.5;
-            z-index: -1;
-            animation: borderRotate 4s linear infinite;
-            background-size: 300% 300%;
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
         }
-
-        @keyframes borderRotate {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Floating elements inside popup */
-        .popup-content::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            opacity: 0.1;
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px) scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .popup-content p {
-            font-size: 1.8rem;
-            margin-bottom: 40px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.95);
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-            z-index: 1;
-            position: relative;
-        }
-
-        .popup-logo {
-            font-size: 60px;
-            margin-bottom: 30px;
-            color: var(--accent);
-            animation: bounce 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 30px var(--glow));
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .close-popup {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
-            color: #fff;
-            border: none;
-            padding: 20px 50px;
-            font-size: 1.3rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            letter-spacing: 2px;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            box-shadow: 
-                0 10px 30px rgba(99, 102, 241, 0.4),
-                inset 0 0 20px rgba(255, 255, 255, 0.1);
-            z-index: 1;
-        }
-
-        .close-popup::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-            transform: translate(-50%, -50%);
-            transition: all 0.6s ease;
-            border-radius: 50%;
-        }
-
-        .close-popup:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .close-popup:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 
-                0 15px 40px rgba(99, 102, 241, 0.6),
-                inset 0 0 30px rgba(255, 255, 255, 0.2);
-            letter-spacing: 3px;
-        }
-
-        .heart {
-            color: #ef4444;
-            animation: heartBeat 1.5s ease-in-out infinite;
-            filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));
-        }
-
-        @keyframes heartBeat {
-            0%, 100% { 
-                transform: scale(1);
-                filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.8));
-            }
-            50% { 
-                transform: scale(1.3);
-                filter: drop-shadow(0 0 20px rgba(239, 68, 68, 1));
-            }
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Live Scorecard */
-        .scorecard {
-            background: linear-gradient(135deg, rgba(25, 25, 45, 0.6) 0%, rgba(15, 15, 35, 0.8) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px 30px;
-            margin: 25px 0;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .match-info {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .match-title {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: var(--accent-secondary);
-        }
-
-        .live-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-                        background: #ef4444;
-            padding: 6px 20px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            animation: livePulse 2s ease infinite;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
-        }
-
-        .live-badge::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        @keyframes livePulse {
-            0% { 
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-                transform: scale(1);
-            }
-            50% { 
-                box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
-                transform: scale(1.05);
-            }
-            100% { 
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-                transform: scale(1);
-            }
-        }
-
-        .score-display {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 40px;
-            margin-bottom: 20px;
-        }
-
-        .team-score {
-            text-align: center;
-            padding: 20px 30px;
-            background: rgba(20, 20, 40, 0.4);
-            border-radius: 15px;
-            min-width: 200px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1);
-            cursor: pointer;
-        }
-
-        /* Subtle glow effect on hover */
-        .team-score::before {
-            content: '';
+        
+        .loading-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at center, var(--accent) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none;
-        }
-
-        .team-score::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 120%;
-            height: 120%;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
-            transform: translate(-50%, -50%) scale(0);
-            transition: transform 0.4s ease;
-            pointer-events: none;
-        }
-
-        .team-score:hover {
-            transform: translateY(-5px);
-            background: rgba(30, 30, 50, 0.6);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .team-score:hover::before {
-            opacity: 0.05;
-        }
-
-        .team-score:hover::after {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .team-name {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.9;
-            transition: all 0.3s ease;
-        }
-
-        .team-score:hover .team-name {
-            opacity: 1;
-        }
-
-        .score {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 3px;
-            transition: all 0.3s ease;
-            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
-        }
-
-        .team-score:hover .score {
-            transform: scale(1.05);
-        }
-
-        .overs {
-            font-size: 1rem;
-            opacity: 0.6;
-            font-weight: 300;
-        }
-
-        /* Run Rate Display */
-        .run-rate-container {
-            background: rgba(20, 20, 40, 0.3);
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            z-index: 2000;
+            transition: opacity 0.5s ease;
         }
-
-        .rate-box {
-            text-align: center;
-            padding: 8px 20px;
-            transition: all 0.3s ease;
-        }
-
-        .rate-label {
-            font-size: 0.8rem;
-            opacity: 0.6;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .rate-value {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--accent-secondary);
-            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-        }
-
-        .vs-divider {
-            font-size: 2rem;
-            font-weight: 200;
-            opacity: 0.3;
-            align-self: center;
-        }
-
-        /* Language Selection */
-        .language-selector {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .lang-btn {
-            background: var(--surface);
-            color: white;
-            border: 1px solid var(--border);
-            padding: 12px 30px;
-            margin: 0 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(10px);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .lang-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            transition: all 0.5s ease;
-        }
-
-        .lang-btn:hover::before {
-            left: 100%;
-        }
-
-        .lang-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 30px var(--glow);
-            border-color: var(--accent);
-            background: var(--surface);
-        }
-
-        .lang-btn.active {
-            background: var(--accent);
-            border-color: transparent;
-            box-shadow: 0 10px 30px var(--glow);
-            transform: scale(1.05);
-        }
-
-        /* Video Player Container */
-        .video-container {
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            position: relative;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-            aspect-ratio: 16/9;
-        }
-
-        .video-container:hover {
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9);
-        }
-
-        #videoPlayer {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* YouTube iframe container - hide all YouTube UI */
-        .youtube-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            display: none;
-        }
-
-        #youtubePlayer {
-            position: absolute;
-            top: -60px; /* Hide YouTube header */
-            left: 0;
-            width: 100%;
-            height: calc(100% + 120px); /* Add extra height to crop top/bottom */
-            border: none;
-            pointer-events: none; /* Disable interaction */
-        }
-
-        /* Overlay to prevent YouTube UI interaction */
-        .youtube-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            background: transparent;
-        }
-
-        /* Loading Animation */
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            padding: 60px;
-        }
-
+        
         .loading-spinner {
-            border: 3px solid rgba(99, 102, 241, 0.1);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
             width: 60px;
             height: 60px;
+            border: 4px solid rgba(229, 9, 20, 0.3);
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin-bottom: 20px;
         }
-
+        
+        .loading-text {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        /* Refresh Button */
-        .refresh-btn {
+        
+        .error-message {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(20, 20, 40, 0.6);
-            color: white;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 8px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.85rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #e50914;
+            font-size: 18px;
+            text-align: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .star-cricket-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            height: 50px;
+            width: auto;
+            opacity: 0.9;
+            filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.7));
+            z-index: 1500;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+        }
+        
+        .star-cricket-logo:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        
+        .live-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
+            background: #e50914;
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 1500;
         }
-
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(30, 30, 50, 0.8);
-            border-color: rgba(99, 102, 241, 0.4);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
-
-        /* Notification styles */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            animation: slideInRight 0.5s ease;
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+        
+        .telegram-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Connection status */
-        #connectionStatus {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            background: linear-gradient(90deg, #e50914, #b20710);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            font-weight: 500;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
-
-                /* Animations */
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            border: none;
+            cursor: pointer;
         }
         
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .telegram-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6);
+            background: linear-gradient(90deg, #f50a1a, #c2080f);
         }
         
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+        .shaka-controls-container {
+            background: linear-gradient(transparent, rgba(0,0,0,0.8)) !important;
+            z-index: 1000 !important;
         }
-
-        /* Responsive */
+        
+        .shaka-play-button {
+            color: #e50914 !important;
+            font-size: 24px !important;
+        }
+        
+        .shaka-volume-bar {
+            background: rgba(229, 9, 20, 0.3) !important;
+        }
+        
+        .shaka-volume-bar-level {
+            background: #e50914 !important;
+        }
+        
+        .shaka-seek-bar {
+            background: rgba(255, 255, 255, 0.3) !important;
+            height: 6px !important;
+        }
+        
+        .shaka-seek-bar-played {
+            background: #e50914 !important;
+        }
+        
+        .shaka-fullscreen-button,
+        .shaka-pip-button,
+        .shaka-volume-button,
+        .shaka-overflow-menu-button {
+            color: white !important;
+            font-size: 18px !important;
+        }
+        
+        .shaka-fullscreen-button:hover,
+        .shaka-pip-button:hover,
+        .shaka-volume-button:hover,
+        .shaka-overflow-menu-button:hover {
+            color: #e50914 !important;
+        }
+        
+        .shaka-controls-button-panel {
+            background: rgba(0, 0, 0, 0.7) !important;
+            padding: 15px !important;
+        }
+        
+        .shaka-current-time,
+        .shaka-time-separator,
+        .shaka-duration {
+            color: white !important;
+            font-weight: 500 !important;
+        }
+        
+        body:fullscreen {
+            padding: 0;
+            gap: 0;
+        }
+        
+        body:fullscreen #container {
+            width: 100vw;
+            height: 100vh;
+            max-width: none;
+            border-radius: 0;
+            aspect-ratio: auto;
+        }
+        
+        body:fullscreen .telegram-btn {
+            display: none;
+        }
+        
         @media (max-width: 768px) {
-            .popup-content {
-                padding: 40px 30px;
-                margin: 20px;
+            body {
+                padding: 10px;
+                gap: 20px;
             }
-
-            .popup-content p {
-                font-size: 1.4rem;
+            
+            .star-cricket-logo {
+                height: 18px;
+                top: 15px;
+                right: 15px;
             }
-
-            .popup-logo {
-                font-size: 40px;
+            
+            .live-indicator {
+                top: 15px;
+                left: 15px;
+                padding: 6px 12px;
+                font-size: 12px;
             }
-
-            .match-title {
-                font-size: 1.4rem;
+            
+            .shaka-controls-button-panel {
+                padding: 10px !important;
             }
-
-            .team-score {
-                min-width: 140px;
-                padding: 15px 20px;
+            
+            .telegram-btn {
+                padding: 12px 24px;
+                font-size: 14px;
             }
-
-            .score {
-                font-size: 2rem;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+                gap: 15px;
             }
-
-            .rate-value {
-                font-size: 1.3rem;
+            
+            #container {
+                border-radius: 8px;
             }
-
-            .lang-btn {
+            
+            .telegram-btn {
                 padding: 10px 20px;
-                font-size: 0.85rem;
-                margin: 5px;
-            }
-
-            .scorecard {
-                padding: 20px;
+                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Particle container -->
-    <div id="particles"></div>
-
-    <!-- Enhanced Popup Modal -->
-    <div class="popup-overlay" id="welcomePopup">
-        <div class="popup-content">
-            <div class="popup-logo">
-                <i class="fas fa-play-circle"></i>
-            </div>
-            <p>Made by Gajju</p>
-            <button class="close-popup" onclick="closePopup()">
-                <span>Enter</span>
-            </button>
+    <div id="container">
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span>LIVE</span>
         </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container">
-        <!-- Live Scorecard -->
-        <div class="scorecard" id="scorecard">
-            <button class="refresh-btn" onclick="refreshScores()">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            
-            <div class="match-info">
-                <span class="live-badge">LIVE</span>
-                <h1 class="match-title" id="matchTitle">Loading match...</h1>
-                <p style="opacity: 0.6; font-size: 0.95rem;" id="matchStatus">Fetching live data...</p>
-            </div>
-            
-            <div class="score-display">
-                <div class="team-score" id="team1">
-                    <div class="team-name">Team 1</div>
-                    <div class="score">0-0</div>
-                    <div class="overs">(0.0 overs)</div>
-                </div>
-                
-                <div class="vs-divider">VS</div>
-                
-                <div class="team-score" id="team2">
-                    <div class="team-name">Team 2</div>
-                    <div class="score">Yet to bat</div>
-                    <div class="overs">-</div>
-                </div>
-            </div>
-            
-            <!-- Run Rate Display -->
-            <div class="run-rate-container">
-                <div class="rate-box">
-                    <div class="rate-label">Current Run Rate</div>
-                    <div class="rate-value" id="currentRunRate">0.00</div>
-                </div>
-                <div class="rate-box" id="requiredRunRateBox" style="display: none;">
-                    <div class="rate-label">Required Run Rate</div>
-                    <div class="rate-value" id="requiredRunRate">0.00</div>
-                </div>
-            </div>
+        
+        <a>
+            <img src="https://starwebplayer.pages.dev/star.png" class="star-cricket-logo" alt="Star Cricket Logo">
+        </a>
+        
+        <video id="video" autoplay muted playsinline webkit-playsinline></video>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Live Stream...</div>
         </div>
-
-        <!-- Language Selection -->
-        <div class="language-selector">
-            <button class="lang-btn active" onclick="changeLanguage('english', this)">
-                <i class="fas fa-language"></i> English
-            </button>
-            <button class="lang-btn" onclick="changeLanguage('hindi', this)">
-                <i class="fas fa-language"></i> हिन्दी
-            </button>
-            <button class="lang-btn" onclick="changeLanguage('regional', this)">
-                <i class="fas fa-language"></i> Regional
-            </button>
+        
+        <div class="error-message" id="errorMessage">
+            <h3>⚠️ Stream Unavailable</h3>
+            <p>Unable to load the live stream. Please refresh the page.</p>
         </div>
-
-        <!-- Video Player -->
-        <div class="video-container">
-            <video id="videoPlayer" controls></video>
-            <div class="youtube-container" id="youtubeContainer">
-                <iframe id="youtubePlayer" 
-                        src="" 
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allowfullscreen></iframe>
-                <div class="youtube-overlay"></div>
-            </div>
-            <div class="loading" id="loadingIndicator">
-                <div class="loading-spinner"></div>
-                <p style="margin-top: 20px; opacity: 0.8;">Loading stream...</p>
-            </div>
-        </div>
-    </div>
-
+    </div>  
+    
+   
+    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.0/dist/shaka-player.ui.js"></script>
+    
     <script>
-        // Configuration
-        const config = {
-            backendUrl: window.location.hostname === 'localhost' 
-                ? 'http://localhost:5000'
-                : 'https://live-cricket-k3it.onrender.com',
-            streamUrls: {
-                english: 'https://dish.slivcdn.com/hls/live/2020591/TEN3HD/master_3500.m3u8',
-                hindi: 'https://dish.slivcdn.com/hls/live/2020591/TEN3HD/master_3500.m3u8',
-                regional: 'https://www.youtube.com/embed/GoHDolSJxIQ'
-            }
-        };
-
-        let hls = null;
-        let currentLanguage = 'english';
-        let scoreUpdateInterval = null;
-        let cricketScoreAPI = null;
-
-        // Reduced particle system
-        class ParticleSystem {
+        class StarCricketShakaPlayer {
             constructor() {
-                this.container = document.getElementById('particles');
-                this.mouseX = 0;
-                this.mouseY = 0;
-                this.lastParticleTime = 0;
+                this.video = document.getElementById('video');
+                this.container = document.getElementById('container');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.errorMessage = document.getElementById('errorMessage');
+                
+                this.player = null;
+                this.ui = null;
+                this.streamUrl = 'https://in-mc-fdlive.fancode.com/mumbai/119216_english_hls_9b5cad453021915ta-di_h264/1080p.m3u8';
+                
                 this.init();
             }
-
-            init() {
-                document.addEventListener('mousemove', (e) => {
-                    this.mouseX = e.clientX;
-                    this.mouseY = e.clientY;
-                    
-                    // Create particles less frequently
-                    const currentTime = Date.now();
-                    if (currentTime - this.lastParticleTime > 100) { // Only create particle every 100ms
-                        if (Math.random() > 0.7) { // 30% chance to create particle
-                            this.createParticle(e.clientX, e.clientY);
-                            this.lastParticleTime = currentTime;
+            
+            async init() {
+                shaka.polyfill.installAll();
+                
+                if (!shaka.Player.isBrowserSupported()) {
+                    console.error('Browser not supported!');
+                    this.showError();
+                    return;
+                }
+                
+                this.player = new shaka.Player(this.video);
+                
+                const config = {
+                    streaming: {
+                        rebufferingGoal: 15,
+                        bufferingGoal: 30,
+                        bufferBehind: 30,
+                        retryParameters: {
+                            timeout: 30000,
+                            maxAttempts: 4,
+                            baseDelay: 1000,
+                            backoffFactor: 2,
+                            fuzzFactor: 0.5
                         }
+                    },
+                    abr: {
+                        enabled: true,
+                        useNetworkInformation: true,
+                        defaultBandwidthEstimate: 1000000
                     }
-                });
-
-                // Create fewer ambient particles
-                setInterval(() => {
-                    const x = Math.random() * window.innerWidth;
-                    const y = Math.random() * window.innerHeight;
-                    this.createAmbientParticle(x, y);
-                }, 2000); // Reduced frequency
-            }
-
-            createParticle(x, y) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
+                };
                 
-                const size = Math.random() * 4 + 2;
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = Math.random() * 50 + 30;
+                this.player.configure(config);
                 
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
-                particle.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
-                particle.style.boxShadow = `0 0 ${size * 2}px ${size / 2}px rgba(99, 102, 241, 0.5)`;
+                const uiConfig = {
+                    controlPanelElements: [
+                        'play_pause',
+                        'time_and_duration',
+                        'spacer',
+                        'mute',
+                        'volume',
+                        'quality',
+                        'picture_in_picture',
+                        'fullscreen',
+                        'cast'
+                    ],
+                    addSeekBar: true,
+                    addBigPlayButton: true,
+                    enableTooltips: true,
+                    enableKeyboardPlaybackControls: true,
+                    enableFullscreenOnRotation: true
+                };
                 
-                this.container.appendChild(particle);
+                this.ui = new shaka.ui.Overlay(this.player, this.container, this.video);
+                this.ui.configure(uiConfig);
                 
-                setTimeout(() => particle.remove(), 3000);
-            }
-
-            createAmbientParticle(x, y) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
+                this.setupEventListeners();
                 
-                particle.style.width = '2px';
-                particle.style.height = '2px';
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.setProperty('--tx', (Math.random() - 0.5) * 100 + 'px');
-                particle.style.setProperty('--ty', -Math.random() * 200 + 'px');
-                particle.style.boxShadow = '0 0 4px 1px rgba(129, 140, 248, 0.3)';
-                particle.style.animationDuration = '6s';
-                
-                this.container.appendChild(particle);
-                
-                setTimeout(() => particle.remove(), 6000);
-            }
-        }
-
-        // Initialize particle system
-        const particleSystem = new ParticleSystem();
-
-        // Cricket Score API Class
-        class CricketScoreAPI {
-            constructor() {
-                this.backendUrl = config.backendUrl;
-                this.updateInterval = null;
-            }
-
-            async fetchCurrentScore() {
                 try {
-                    const response = await fetch(`${this.backendUrl}/api/current-score`);
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        this.updateDisplay(data);
-                        return data;
-                    } else {
-                        throw new Error(data.error || 'Failed to fetch scores');
-                    }
+                    await this.player.load(this.streamUrl);
+                    console.log('Stream loaded successfully!');
+                    this.hideLoading();
                 } catch (error) {
-                    console.error('Error fetching scores:', error);
-                    document.getElementById('matchStatus').textContent = 'Unable to fetch live scores';
-                    return null;
+                    console.error('Error loading stream:', error);
+                    this.handleError(error);
                 }
             }
-
-            updateDisplay(data) {
-                // Update match title
-                const shortTitle = `${data.team1_name || 'Team 1'} vs ${data.team2_name || 'Team 2'}`;
-                document.getElementById('matchTitle').textContent = shortTitle;
-                document.getElementById('matchStatus').textContent = data.update || 'Live Match';
-
-                // Update Team 1 score with animation
-                const team1 = document.getElementById('team1');
-                this.animateScore(team1, {
-                    name: data.team1_name || 'Team 1',
-                    score: `${data.team1_score || '0'}-${data.team1_wickets || '0'}`,
-                    overs: `(${data.team1_overs || '0.0'} overs)`
+            
+            setupEventListeners() {
+                this.player.addEventListener('error', (event) => {
+                    console.error('Shaka Player error:', event.detail);
+                    this.handleError(event.detail);
                 });
-
-                                // Update Team 2 score
-                const team2 = document.getElementById('team2');
-                if (data.team2_status && data.team2_status !== 'Yet to bat') {
-                    this.animateScore(team2, {
-                        name: data.team2_name || 'Team 2',
-                        score: `${data.team2_score || '0'}-${data.team2_wickets || '0'}`,
-                        overs: `(${data.team2_overs || '0.0'} overs)`
+                
+                this.player.addEventListener('buffering', (event) => {
+                    if (event.buffering) {
+                        console.log('Buffering started');
+                    } else {
+                        console.log('Buffering ended');
+                    }
+                });
+                
+                this.player.addEventListener('adaptation', () => {
+                    const stats = this.player.getStats();
+                    console.log('Quality changed:', stats.width + 'x' + stats.height);
+                });
+                
+                this.video.addEventListener('loadstart', () => {
+                    console.log('Load started');
+                });
+                
+                this.video.addEventListener('canplay', () => {
+                    console.log('Can play');
+                    this.video.play().catch(e => {
+                        console.log('Auto-play prevented:', e);
                     });
+                });
+                
+                this.video.addEventListener('playing', () => {
+                    console.log('Playing');
+                    this.hideLoading();
+                });
+                
+                this.video.addEventListener('waiting', () => {
+                    console.log('Waiting for data');
+                });
+                
+                this.video.addEventListener('error', (e) => {
+                    console.error('Video element error:', e);
+                    this.showError();
+                });
+            }
+            
+            handleError(error) {
+                console.error('Shaka Player Error:', error);
+                
+                if (error.code === shaka.util.Error.Code.HTTP_ERROR) {
+                    console.log('Network error, attempting to retry...');
+                    setTimeout(() => {
+                        this.player.retryStreaming();
+                    }, 5000);
                 } else {
-                    team2.querySelector('.team-name').textContent = data.team2_name || 'Team 2';
-                    team2.querySelector('.score').textContent = 'Yet to bat';
-                    team2.querySelector('.overs').textContent = '-';
-                }
-
-                // Update run rates with animation
-                if (data.runrate) {
-                    const runRates = data.runrate.split(' | ');
-                    const crr = runRates[0].replace('CRR: ', '');
-                    this.animateValue('currentRunRate', parseFloat(crr));
-                    
-                    if (runRates.length > 1) {
-                        const rrr = runRates[1].replace('RRR: ', '');
-                        this.animateValue('requiredRunRate', parseFloat(rrr));
-                        document.getElementById('requiredRunRateBox').style.display = 'block';
-                    } else {
-                        document.getElementById('requiredRunRateBox').style.display = 'none';
-                    }
-                }
-
-                // Show success notification first time
-                if (!this.updateInterval) {
-                    showNotification('Live scores connected!', 'success');
+                    this.showError();
                 }
             }
-
-            animateScore(element, data) {
-                element.querySelector('.team-name').textContent = data.name;
-                const scoreEl = element.querySelector('.score');
-                const oversEl = element.querySelector('.overs');
-                
-                scoreEl.style.transform = 'scale(1.05)';
+            
+            hideLoading() {
+                this.loadingOverlay.style.opacity = '0';
                 setTimeout(() => {
-                    scoreEl.textContent = data.score;
-                    scoreEl.style.transform = 'scale(1)';
-                }, 200);
-                
-                oversEl.textContent = data.overs;
+                    this.loadingOverlay.style.display = 'none';
+                }, 500);
             }
-
-            animateValue(elementId, value) {
-                const element = document.getElementById(elementId);
-                const current = parseFloat(element.textContent) || 0;
-                const diff = value - current;
-                const duration = 500;
-                const steps = 20;
-                const stepValue = diff / steps;
-                let step = 0;
-
-                const interval = setInterval(() => {
-                    step++;
-                    if (step <= steps) {
-                        element.textContent = (current + stepValue * step).toFixed(2);
-                    } else {
-                        clearInterval(interval);
-                        element.textContent = value.toFixed(2);
-                    }
-                }, duration / steps);
+            
+            showError() {
+                this.loadingOverlay.style.display = 'none';
+                this.errorMessage.style.display = 'block';
             }
-
-            startLiveUpdates() {
-                // Initial fetch
-                this.fetchCurrentScore();
-                
-                // Update every 10 seconds
-                this.updateInterval = setInterval(() => {
-                    this.fetchCurrentScore();
-                }, 10000);
-            }
-
-            stopUpdates() {
-                if (this.updateInterval) {
-                    clearInterval(this.updateInterval);
-                    this.updateInterval = null;
+            
+            destroy() {
+                if (this.player) {
+                    this.player.destroy();
                 }
             }
         }
-
-        // Initialize video player
-        function initPlayer(url) {
-            const video = document.getElementById('videoPlayer');
-            const youtubeContainer = document.getElementById('youtubeContainer');
-            const youtube = document.getElementById('youtubePlayer');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-
-            // Handle YouTube for regional - Completely hide YouTube UI
-            if (currentLanguage === 'regional') {
-                video.style.display = 'none';
-                youtubeContainer.style.display = 'block';
-                // Parameters to hide everything possible
-                youtube.src = `${url}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&fs=0&iv_load_policy=3&disablekb=1&enablejsapi=1&origin=${window.location.origin}&widget_referrer=${window.location.origin}`;
-                loadingIndicator.style.display = 'none';
-                
-                // Stop HLS if it was playing
-                if (hls) {
-                    hls.destroy();
-                    hls = null;
-                }
-                return;
-            }
-
-            // Handle HLS streams
-            video.style.display = 'block';
-            youtubeContainer.style.display = 'none';
-            youtube.src = ''; // Clear YouTube src
-
-            if (Hls.isSupported()) {
-                if (hls) {
-                    hls.destroy();
-                }
-                
-                hls = new Hls({
-                    enableWorker: true,
-                    lowLatencyMode: true,
-                });
-                
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    loadingIndicator.style.display = 'none';
-                    video.play().catch(e => {
-                        console.log('Autoplay was prevented');
-                    });
-                });
-
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.error('Fatal network error encountered, trying to recover');
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.error('Fatal media error encountered, trying to recover');
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                console.error('Fatal error, cannot recover');
-                                hls.destroy();
-                                break;
-                        }
-                    }
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.addEventListener('loadedmetadata', function() {
-                    loadingIndicator.style.display = 'none';
-                    video.play().catch(e => {
-                        console.log('Autoplay was prevented');
-                    });
-                });
-            }
-        }
-
-        // Close popup function
-        function closePopup() {
-            const popup = document.getElementById('welcomePopup');
-            popup.style.animation = 'fadeOut 0.5s ease';
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, 500);
-            
-            // Initialize player
-            initPlayer(config.streamUrls[currentLanguage]);
-            
-            // Start fetching cricket scores from Python backend
-            cricketScoreAPI = new CricketScoreAPI();
-            cricketScoreAPI.startLiveUpdates();
-        }
-
-        // Change language function
-        function changeLanguage(language, button) {
-            currentLanguage = language;
-            
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            button.classList.add('active');
-            
-            document.getElementById('loadingIndicator').style.display = 'block';
-            initPlayer(config.streamUrls[language]);
-            
-            showNotification(`Switched to ${language.charAt(0).toUpperCase() + language.slice(1)} commentary`, 'success');
-        }
-
-        // Refresh scores manually
-        async function refreshScores() {
-            const refreshBtn = document.querySelector('.refresh-btn');
-            const icon = refreshBtn.querySelector('i');
-            icon.style.transform = 'rotate(360deg)';
-            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-            
-            if (cricketScoreAPI) {
-                await cricketScoreAPI.fetchCurrentScore();
-            }
-            
-            setTimeout(() => {
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-            }, 1000);
-            
-            showNotification('Scores refreshed!', 'success');
-        }
-
-        // Show notification function
-        function showNotification(message, type = 'info') {
-            const colors = {
-                'success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                'error': 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                'info': 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
-            };
-            
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.style.background = colors[type];
-            notification.style.color = 'white';
-            notification.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-            
-            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
-            notification.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.5s ease';
-                setTimeout(() => notification.remove(), 500);
-            }, 3000);
-        }
-
-        // Auto-close popup after 10 seconds
-        setTimeout(() => {
-            const popup = document.getElementById('welcomePopup');
-            if (popup && popup.style.display !== 'none') {
-                closePopup();
-            }
-        }, 10000);
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            const video = document.getElementById('videoPlayer');
-            // Skip if YouTube is playing
-            if (currentLanguage === 'regional') return;
-            
-            switch(e.key) {
-                case ' ':
-                    e.preventDefault();
-                    if (video.paused) {
-                        video.play();
-                    } else {
-                        video.pause();
-                    }
-                    break;
-                case 'f':
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen();
-                    } else {
-                        video.requestFullscreen();
-                    }
-                    break;
-                case 'ArrowRight':
-                    video.currentTime += 10;
-                    break;
-                case 'ArrowLeft':
-                    video.currentTime -= 10;
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    video.volume = Math.min(1, video.volume + 0.1);
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    video.volume = Math.max(0, video.volume - 0.1);
-                    break;
-            }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            new StarCricketShakaPlayer();
         });
-
-        // Double-click to fullscreen on video
-        document.getElementById('videoPlayer').addEventListener('dblclick', function() {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            } else {
-                this.requestFullscreen();
-            }
-        });
-
-        // Connection status indicator
-        function updateConnectionStatus(isConnected) {
-            let statusElement = document.getElementById('connectionStatus');
-            if (!statusElement) {
-                statusElement = document.createElement('div');
-                statusElement.id = 'connectionStatus';
-                document.body.appendChild(statusElement);
-            }
-            
-            if (isConnected) {
-                statusElement.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.9))';
-                statusElement.style.border = '1px solid rgba(16, 185, 129, 0.5)';
-                statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Connected to live scores';
-            } else {
-                statusElement.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))';
-                statusElement.style.border = '1px solid rgba(239, 68, 68, 0.5)';
-                statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Connection lost';
-            }
-            
-            setTimeout(() => {
-                statusElement.style.opacity = '0';
-                setTimeout(() => {
-                    statusElement.style.opacity = '1';
-                    statusElement.remove();
-                }, 300);
-            }, 5000);
-        }
-
-        // Monitor online/offline status
-        window.addEventListener('online', () => {
-            updateConnectionStatus(true);
-            if (cricketScoreAPI) {
-                cricketScoreAPI.fetchCurrentScore();
-            }
-        });
-
-        window.addEventListener('offline', () => {
-            updateConnectionStatus(false);
-        });
-
-        // Check Python backend connection on load
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch(`${config.backendUrl}/api/status`);
-                if (response.ok) {
-                                        console.log('Connected to Python backend successfully');
-                    const status = await response.json();
-                    if (status.has_data) {
-                        console.log('Backend has match data ready');
-                    } else {
-                        console.log('Backend is running but no match URL set yet');
-                        showNotification('Backend ready! Set match URL in Python app', 'info');
-                    }
-                } else {
-                    console.error('Python backend not responding properly');
-                    showNotification('Backend connection error. Make sure Python app is running!', 'error');
-                }
-            } catch (error) {
-                console.error('Cannot connect to Python backend:', error);
-                showNotification('Cannot connect to backend. Run python app.py first!', 'error');
-            }
-        });
-
-        // Add ripple effect on click
-        document.addEventListener('click', function(e) {
-            if (e.target.matches('.lang-btn, .refresh-btn, .team-score, .close-popup')) {
-                const ripple = document.createElement('span');
-                const rect = e.target.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - size / 2;
-                const y = e.clientY - rect.top - size / 2;
-                
-                ripple.style.cssText = `
-                    position: absolute;
-                    width: ${size}px;
-                    height: ${size}px;
-                    border-radius: 50%;
-                    background: rgba(99, 102, 241, 0.3);
-                    top: ${y}px;
-                    left: ${x}px;
-                    pointer-events: none;
-                    transform: scale(0);
-                    animation: ripple 0.6s ease-out;
-                `;
-                
-                e.target.style.position = 'relative';
-                e.target.style.overflow = 'hidden';
-                e.target.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 600);
-            }
-        });
-
-        // Add CSS for ripple animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes ripple {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Auto-resize video player based on window size
-        function resizeVideo() {
-            const video = document.getElementById('videoPlayer');
-            const youtubeContainer = document.getElementById('youtubeContainer');
-            const container = document.querySelector('.video-container');
-            
-            // Container already has aspect-ratio set in CSS
-            // Just ensure both players fill the container
-            video.style.width = '100%';
-            video.style.height = '100%';
-            youtubeContainer.style.width = '100%';
-            youtubeContainer.style.height = '100%';
-        }
-
-        window.addEventListener('resize', resizeVideo);
-        resizeVideo();
-
-        // Add glow effect on hover for interactive elements
-        document.querySelectorAll('.team-score, .lang-btn, .refresh-btn').forEach(element => {
-            let mouseX = 0;
-            let mouseY = 0;
-            let rect = element.getBoundingClientRect();
-            
-            element.addEventListener('mousemove', (e) => {
-                rect = element.getBoundingClientRect();
-                mouseX = e.clientX - rect.left;
-                mouseY = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                const distanceX = (mouseX - centerX) / centerX;
-                const distanceY = (mouseY - centerY) / centerY;
-                
-                element.style.transform = `
-                    perspective(1000px) 
-                    rotateY(${distanceX * 5}deg) 
-                    rotateX(${-distanceY * 5}deg)
-                    translateZ(10px)
-                `;
-            });
-            
-            element.addEventListener('mouseleave', () => {
-                element.style.transform = '';
-            });
-        });
-
-        // Performance optimization: Debounce resize events
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(resizeVideo, 250);
-        });
-
-        // Add smooth scroll behavior
-        document.documentElement.style.scrollBehavior = 'smooth';
-
-        // Interactive background effect
-        document.addEventListener('mousemove', (e) => {
-            const x = e.clientX / window.innerWidth;
-            const y = e.clientY / window.innerHeight;
-            
-            document.body.style.background = `
-                radial-gradient(
-                    600px at ${x * 100}% ${y * 100}%,
-                    rgba(99, 102, 241, 0.15),
-                    transparent 40%
-                ),
-                var(--bg)
-            `;
-        });
-
-        // Create floating orbs in background
-        function createFloatingOrb() {
-            const orb = document.createElement('div');
-            orb.style.cssText = `
-                position: fixed;
-                width: ${Math.random() * 300 + 100}px;
-                height: ${Math.random() * 300 + 100}px;
-                background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-                border-radius: 50%;
-                left: ${Math.random() * window.innerWidth}px;
-                top: ${Math.random() * window.innerHeight}px;
-                pointer-events: none;
-                z-index: 0;
-                filter: blur(40px);
-                opacity: 0;
-                animation: floatOrb 20s ease-in-out infinite;
-                animation-delay: ${Math.random() * 5}s;
-            `;
-            
-            document.body.appendChild(orb);
-            
-            // Clean up old orbs
-            setTimeout(() => orb.remove(), 20000);
-        }
-
-        // Add floating orbs animation
-        const orbStyle = document.createElement('style');
-        orbStyle.textContent = `
-            @keyframes floatOrb {
-                0% {
-                    opacity: 0;
-                    transform: translateY(100px) scale(0);
-                }
-                20% {
-                    opacity: 1;
-                    transform: translateY(0) scale(1);
-                }
-                80% {
-                    opacity: 1;
-                    transform: translateY(-100px) scale(1);
-                }
-                100% {
-                    opacity: 0;
-                    transform: translateY(-200px) scale(0.5);
-                }
-            }
-        `;
-        document.head.appendChild(orbStyle);
-
-        // Create initial orbs
-        for (let i = 0; i < 5; i++) {
-            setTimeout(createFloatingOrb, i * 1000);
-        }
-
-        // Continue creating orbs periodically
-        setInterval(createFloatingOrb, 4000);
-
-        // Handle visibility change to pause/resume updates
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // Pause updates when page is not visible
-                if (cricketScoreAPI) {
-                    cricketScoreAPI.stopUpdates();
-                }
-            } else {
-                // Resume updates when page becomes visible
-                if (cricketScoreAPI) {
-                    cricketScoreAPI.startLiveUpdates();
-                }
-            }
-        });
-
-        // Error boundary for graceful error handling
-        window.addEventListener('error', (event) => {
-            console.error('Global error:', event.error);
-            showNotification('An error occurred. Please refresh the page.', 'error');
-        });
-
-        // Clean up when page closes
-        window.addEventListener('beforeunload', () => {
-            if (cricketScoreAPI) {
-                cricketScoreAPI.stopUpdates();
-            }
-            if (hls) {
-                hls.destroy();
-            }
-        });
-
-        // Add popup entrance animation
-        window.addEventListener('load', () => {
-            const popup = document.querySelector('.popup-content');
-            if (popup) {
-                // Create additional floating particles in popup
-                for (let i = 0; i < 20; i++) {
-                    const particle = document.createElement('div');
-                    particle.style.cssText = `
-                        position: absolute;
-                        width: 4px;
-                        height: 4px;
-                        background: var(--accent);
-                        border-radius: 50%;
-                        left: ${Math.random() * 100}%;
-                        top: ${Math.random() * 100}%;
-                        pointer-events: none;
-                        opacity: 0.6;
-                        animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
-                        animation-delay: ${Math.random() * 2}s;
-                    `;
-                    popup.appendChild(particle);
-                }
-            }
-        });
-
-        // Add float animation for popup particles
-        const floatStyle = document.createElement('style');
-        floatStyle.textContent = `
-            @keyframes float {
-                0%, 100% {
-                    transform: translateY(0) translateX(0);
-                    opacity: 0.6;
-                }
-                50% {
-                    transform: translateY(-20px) translateX(10px);
-                    opacity: 1;
-                }
-            }
-        `;
-        document.head.appendChild(floatStyle);
-
-        // Prevent right-click on YouTube iframe to hide context menu
-        document.addEventListener('contextmenu', function(e) {
-            if (e.target.id === 'youtubePlayer' || e.target.className === 'youtube-overlay') {
+    </script>
+    
+    <script>
+        document.addEventListener("contextmenu", (e => e.preventDefault()));
+        document.oncontextmenu = null;
+        document.onselectstart = null;
+        document.ondragstart = null;
+        document.onmousedown = null;
+        document.body.oncontextmenu = null;
+        document.body.onselectstart = null;
+        document.body.ondragstart = null;
+        document.body.onmousedown = null;
+        document.body.oncut = null;
+        document.body.oncopy = null;
+        document.body.onpaste = null;
+        document.addEventListener("keydown", (e => {
+            if (123 === e.keyCode || e.ctrlKey && e.shiftKey && 73 === e.keyCode || 
+                e.ctrlKey && e.shiftKey && 67 === e.keyCode || e.ctrlKey && 85 === e.keyCode) {
                 e.preventDefault();
-                return false;
             }
-        });
+        }));
     </script>
 </body>
 </html>
